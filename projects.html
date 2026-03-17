@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects — Rishi Prasad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#050D18;--navy-light:#0A1628;--cream:#EDE4D3;--cream-dim:#9E9585;
+  --cream-muted:rgba(237,228,211,0.5);--cream-faint:rgba(237,228,211,0.06);
+  --cream-border:rgba(237,228,211,0.1);--accent:#6B9BC7;
+  --accent-dim:rgba(107,155,199,0.12);--green:#7BAE7F;--amber:#C4A24E;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--sans);background:var(--navy);color:var(--cream);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none;transition:color .2s}a:hover{color:var(--cream)}
+::selection{background:var(--accent);color:var(--navy)}
+.c{max-width:1100px;margin:0 auto;padding:0 2.5rem}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.4rem 0;transition:all .3s;background:rgba(5,13,24,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--cream-border)}
+.nav-in{max-width:1100px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--serif);font-weight:600;font-size:1.4rem;color:var(--cream);letter-spacing:.02em}
+.nav-logo:hover{color:var(--accent)}
+.nav-links{list-style:none;display:flex;gap:2.5rem}
+.nav-links a{color:var(--cream-dim);font-family:var(--mono);font-size:.75rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--cream)}
+.nav-links a.active{color:var(--cream)}
+
+/* Page header */
+.page-header{padding:10rem 0 4rem}
+.sec-l{font-family:var(--mono);font-size:.75rem;color:var(--cream-dim);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.8rem}
+.sec-t{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:600;letter-spacing:-.01em;color:var(--cream);margin-bottom:1rem;line-height:1.2}
+.page-intro{font-family:var(--serif);font-size:1.15rem;color:var(--cream-muted);max-width:620px;line-height:1.8}
+
+/* Project cards */
+.proj-list{display:flex;flex-direction:column;gap:1.2rem;padding:2rem 0 4rem}
+.proj-card{background:var(--cream-faint);border:1px solid var(--cream-border);border-radius:8px;padding:2.2rem 2.5rem;transition:border-color .3s}
+.proj-card:hover{border-color:rgba(237,228,211,.22)}
+.proj-head{display:flex;align-items:baseline;justify-content:space-between;gap:1.5rem;margin-bottom:.6rem;flex-wrap:wrap}
+.proj-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--cream)}
+.proj-tagline{font-family:var(--sans);font-size:.95rem;color:var(--accent);margin-bottom:1rem}
+.proj-desc{font-family:var(--sans);font-size:.95rem;color:var(--cream-dim);line-height:1.75;max-width:680px;margin-bottom:1.4rem}
+.proj-tech{font-family:var(--mono);font-size:.72rem;color:var(--cream-dim);letter-spacing:.06em;text-transform:uppercase;opacity:.7;margin-bottom:1.2rem}
+.proj-links{display:flex;gap:.6rem;flex-wrap:wrap}
+.proj-status{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;padding:.3rem .7rem;border-radius:3px}
+.proj-status.building{color:var(--green);background:rgba(123,174,127,.08);border:1px solid rgba(123,174,127,.2)}
+.proj-status.shipped{color:var(--amber);background:rgba(196,162,78,.08);border:1px solid rgba(196,162,78,.2)}
+.status-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:4px;font-family:var(--mono);font-size:.72rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;transition:all .25s;cursor:pointer}
+.btn-o{border:1px solid var(--cream-border);color:var(--cream-dim);background:transparent}
+.btn-o:hover{border-color:var(--cream-dim);color:var(--cream);background:rgba(237,228,211,.03)}
+.arr{width:11px;height:11px;margin-left:3px;vertical-align:middle}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.78rem;color:var(--cream-dim);letter-spacing:.04em;text-transform:uppercase;margin-top:1rem;transition:color .2s}
+.back-link:hover{color:var(--cream)}
+.back-arr{width:12px;height:12px;transform:rotate(180deg)}
+
+/* Footer */
+footer{padding:1.8rem 0;border-top:1px solid var(--cream-border);margin-top:4rem}
+footer .c{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+footer span{font-family:var(--mono);font-size:.72rem;color:rgba(237,228,211,.25)}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .page-header{padding:7rem 0 3rem}
+  .proj-card{padding:1.5rem 1.6rem}
+  .proj-head{flex-direction:column;gap:.4rem}
+  footer .c{flex-direction:column;text-align:center}
+}
+@media(max-width:480px){
+  .c{padding:0 1.4rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="index.html" class="nav-logo">Rishi Prasad</a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#timeline">Timeline</a></li>
+      <li><a href="index.html#thinking">Perspective</a></li>
+      <li><a href="projects.html" class="active">Projects</a></li>
+      <li><a href="books.html">Books</a></li>
+      <li><a href="travel.html">Travel</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="page-header">
+  <div class="c">
+    <p class="sec-l">Work</p>
+    <h2 class="sec-t" data-edit="projects-title">Things I'm building.</h2>
+    <p class="page-intro" data-edit="projects-intro">Five products shipped since October 2024. Each one started from a real problem I either experienced firsthand or watched someone else struggle with. No pitch decks &mdash; just deployed software.</p>
+  </div>
+</section>
+
+<section>
+  <div class="c">
+    <div class="proj-list" data-list="projects">
+
+      <div class="proj-card" data-list-item>
+        <div class="proj-head">
+          <span class="proj-title">1000years.ai</span>
+          <span class="proj-status building"><span class="status-dot"></span> Building</span>
+        </div>
+        <div class="proj-tagline">Voice memory preservation for families</div>
+        <div class="proj-desc">Families lose stories when grandparents die. This platform lets you record conversations, clone a loved one's voice with ElevenLabs, and query those memories with semantic search years later. Currently in user validation with early families.</div>
+        <div class="proj-tech">ElevenLabs / pgvector / Supabase / React</div>
+      </div>
+
+      <div class="proj-card" data-list-item>
+        <div class="proj-head">
+          <span class="proj-title">IT Audit MCP Server</span>
+          <span class="proj-status building"><span class="status-dot"></span> Building</span>
+        </div>
+        <div class="proj-tagline">AI audit assistant on Model Context Protocol</div>
+        <div class="proj-desc">Enterprise IT auditors spend weeks on repetitive evidence gathering. This MCP server gives AI agents structured access to audit frameworks, control libraries, and evidence workflows &mdash; turning weeks of manual work into hours.</div>
+        <div class="proj-tech">MCP / Supabase / Claude / PostgreSQL</div>
+      </div>
+
+      <div class="proj-card" data-list-item>
+        <div class="proj-head">
+          <span class="proj-title">LivingFlow</span>
+          <span class="proj-status shipped"><span class="status-dot"></span> Shipped</span>
+        </div>
+        <div class="proj-tagline">Voice-controlled AI flowchart generation</div>
+        <div class="proj-desc">Describe a process out loud, get a structured flowchart. Built to explore whether voice-first interfaces could replace drag-and-drop for diagramming. The answer: sometimes, yes.</div>
+        <div class="proj-tech">React / Voice API / AI</div>
+        <div class="proj-links">
+          <a href="https://live-flow-ai-27.lovable.app/" target="_blank" rel="noopener" class="btn btn-o">Live Demo <svg class="arr" viewBox="0 0 14 14" fill="none"><path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
+      <div class="proj-card" data-list-item>
+        <div class="proj-head">
+          <span class="proj-title">Medical AI Platform</span>
+          <span class="proj-status shipped"><span class="status-dot"></span> Shipped</span>
+        </div>
+        <div class="proj-tagline">Neurosurgery practice site with conversational AI and 3D anatomy</div>
+        <div class="proj-desc">A client project for a practicing neurosurgeon. Patients can ask a Claude-powered chatbot about conditions and procedures, view 3D interactive spine models, and book appointments with integrated payments. Fully delivered and in production.</div>
+        <div class="proj-tech">Claude API / Three.js / UPI Payments</div>
+      </div>
+
+      <div class="proj-card" data-list-item>
+        <div class="proj-head">
+          <span class="proj-title">Scavi</span>
+          <span class="proj-status shipped"><span class="status-dot"></span> Shipped</span>
+        </div>
+        <div class="proj-tagline">Electronics component scanner &amp; identifier</div>
+        <div class="proj-desc">Point your camera at an electronic component &mdash; resistor, IC, capacitor &mdash; and get instant identification with datasheets. Born from a hardware tinkering problem: &ldquo;what is this tiny thing on my bench?&rdquo;</div>
+        <div class="proj-tech">Computer Vision / Hardware / React</div>
+        <div class="proj-links">
+          <a href="https://github.com/BergUetli/scavenge-build-reuse" target="_blank" rel="noopener" class="btn btn-o">GitHub <svg class="arr" viewBox="0 0 14 14" fill="none"><path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
+    </div>
+
+    <a href="index.html" class="back-link">
+      <svg class="back-arr" viewBox="0 0 14 14" fill="none"><path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to home
+    </a>
+  </div>
+</section>
+
+<footer><div class="c"><span>&copy; 2026 Rishi Prasad</span><span>Zurich, Switzerland</span></div></footer>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  window._admin.enableListEditing('[data-list="projects"]', '[data-list-item]', function() {
+    return '<div class="proj-card" data-list-item><div class="proj-head"><span class="proj-title">New Project</span><span class="proj-status building"><span class="status-dot"></span> Building</span></div><div class="proj-tagline">Project tagline</div><div class="proj-desc">Description of this project.</div><div class="proj-tech">Tech Stack</div></div>';
+  });
+});
+</script>
+</body>
+</html>

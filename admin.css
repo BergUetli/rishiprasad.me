@@ -1,0 +1,267 @@
+/* ═══════════════════════════════════
+   Admin Mode — Only visible when authenticated
+   ═══════════════════════════════════ */
+
+/* Admin bar at bottom of screen */
+.admin-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: rgba(5, 13, 24, 0.97);
+  border-top: 1px solid rgba(107, 155, 199, 0.3);
+  backdrop-filter: blur(20px);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #EDE4D3;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+.admin-bar.visible { transform: translateY(0); }
+
+.admin-bar__label {
+  color: #6B9BC7;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.admin-bar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7BAE7F;
+  animation: adminPulse 2s ease-in-out infinite;
+}
+@keyframes adminPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.admin-bar__sep {
+  width: 1px;
+  height: 18px;
+  background: rgba(237, 228, 211, 0.1);
+}
+
+.admin-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid rgba(237, 228, 211, 0.15);
+  background: rgba(237, 228, 211, 0.05);
+  color: rgba(237, 228, 211, 0.7);
+}
+.admin-btn:hover {
+  border-color: rgba(237, 228, 211, 0.3);
+  color: #EDE4D3;
+  background: rgba(237, 228, 211, 0.1);
+}
+.admin-btn--primary {
+  border-color: rgba(107, 155, 199, 0.4);
+  background: rgba(107, 155, 199, 0.1);
+  color: #6B9BC7;
+}
+.admin-btn--primary:hover {
+  border-color: #6B9BC7;
+  background: rgba(107, 155, 199, 0.2);
+}
+.admin-btn--danger {
+  border-color: rgba(199, 91, 91, 0.3);
+  color: #C75B5B;
+}
+.admin-btn--danger:hover {
+  border-color: #C75B5B;
+  background: rgba(199, 91, 91, 0.1);
+}
+.admin-btn--save {
+  border-color: rgba(123, 174, 127, 0.4);
+  background: rgba(123, 174, 127, 0.1);
+  color: #7BAE7F;
+}
+.admin-btn--save:hover {
+  border-color: #7BAE7F;
+  background: rgba(123, 174, 127, 0.2);
+}
+
+.admin-bar__spacer { flex: 1; }
+
+.admin-bar__status {
+  color: rgba(237, 228, 211, 0.4);
+  font-size: 0.6rem;
+}
+
+/* Login overlay */
+.admin-login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(5, 13, 24, 0.95);
+  backdrop-filter: blur(20px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.admin-login-overlay.visible { display: flex; }
+
+.admin-login-box {
+  background: rgba(10, 22, 40, 0.9);
+  border: 1px solid rgba(237, 228, 211, 0.1);
+  border-radius: 8px;
+  padding: 2.5rem 3rem;
+  width: 360px;
+  text-align: center;
+}
+.admin-login-box h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #EDE4D3;
+  margin-bottom: 0.3rem;
+}
+.admin-login-box p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(237, 228, 211, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+.admin-login-box input {
+  width: 100%;
+  background: rgba(237, 228, 211, 0.04);
+  border: 1px solid rgba(237, 228, 211, 0.1);
+  border-radius: 4px;
+  padding: 0.7rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: #EDE4D3;
+  outline: none;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+.admin-login-box input:focus { border-color: #6B9BC7; }
+.admin-login-box input::placeholder { color: rgba(237, 228, 211, 0.25); }
+
+.admin-login-error {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: #C75B5B;
+  margin-bottom: 0.8rem;
+  display: none;
+}
+.admin-login-error.visible { display: block; }
+
+.admin-login-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+.admin-login-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-login-actions .btn-login {
+  background: #6B9BC7;
+  color: #050D18;
+  border: 1px solid #6B9BC7;
+}
+.admin-login-actions .btn-login:hover { background: #7dadd4; }
+.admin-login-actions .btn-close {
+  background: transparent;
+  color: rgba(237, 228, 211, 0.5);
+  border: 1px solid rgba(237, 228, 211, 0.1);
+}
+.admin-login-actions .btn-close:hover {
+  color: #EDE4D3;
+  border-color: rgba(237, 228, 211, 0.3);
+}
+
+/* Editable element highlights in edit mode */
+body.admin-editing [data-edit] {
+  outline: 1px dashed rgba(107, 155, 199, 0.25);
+  outline-offset: 4px;
+  cursor: text;
+  transition: outline-color 0.2s;
+  min-height: 1em;
+}
+body.admin-editing [data-edit]:hover {
+  outline-color: rgba(107, 155, 199, 0.5);
+}
+body.admin-editing [data-edit]:focus {
+  outline: 2px solid rgba(107, 155, 199, 0.6);
+  outline-offset: 4px;
+}
+
+/* Admin add/remove buttons inline */
+.admin-item-controls {
+  display: none;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+body.admin-editing .admin-item-controls { display: flex; }
+
+.admin-item-btn {
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-item-btn--remove {
+  background: transparent;
+  border: 1px solid rgba(199, 91, 91, 0.2);
+  color: rgba(199, 91, 91, 0.6);
+}
+.admin-item-btn--remove:hover {
+  border-color: #C75B5B;
+  color: #C75B5B;
+  background: rgba(199, 91, 91, 0.08);
+}
+.admin-item-btn--add {
+  background: transparent;
+  border: 1px solid rgba(107, 155, 199, 0.2);
+  color: rgba(107, 155, 199, 0.6);
+}
+.admin-item-btn--add:hover {
+  border-color: #6B9BC7;
+  color: #6B9BC7;
+  background: rgba(107, 155, 199, 0.08);
+}
+
+/* Unsaved changes indicator */
+.admin-bar__unsaved {
+  color: #C4A24E;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: none;
+}
+.admin-bar__unsaved.visible { display: inline; }
+
+/* Body padding when admin bar is visible */
+body.admin-active { padding-bottom: 48px; }

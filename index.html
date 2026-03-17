@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rishi Prasad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#050D18;--navy-light:#0A1628;--cream:#EDE4D3;--cream-dim:#9E9585;
+  --cream-muted:rgba(237,228,211,0.5);--cream-faint:rgba(237,228,211,0.06);
+  --cream-border:rgba(237,228,211,0.1);--accent:#6B9BC7;
+  --accent-dim:rgba(107,155,199,0.12);--green:#7BAE7F;--amber:#C4A24E;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--sans);background:var(--navy);color:var(--cream);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none;transition:color .2s}a:hover{color:var(--cream)}
+::selection{background:var(--accent);color:var(--navy)}
+.c{max-width:1100px;margin:0 auto;padding:0 2.5rem}
+.cn{max-width:720px;margin:0 auto;padding:0 2.5rem}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.4rem 0;transition:all .3s}
+nav.scrolled{background:rgba(5,13,24,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--cream-border);padding:.85rem 0}
+.nav-in{max-width:1100px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--serif);font-weight:600;font-size:1.4rem;color:var(--cream);letter-spacing:.02em}
+.nav-logo:hover{color:var(--accent)}
+.nav-links{list-style:none;display:flex;gap:2.5rem}
+.nav-links a{color:var(--cream-dim);font-family:var(--mono);font-size:.75rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--cream)}
+
+/* Hero */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:10rem 0 7rem;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:4rem;align-items:center}
+.hero-kicker{font-family:var(--mono);font-size:.75rem;color:var(--cream-dim);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2rem}
+.hero-name{font-family:var(--serif);font-size:clamp(3.5rem,9vw,7.5rem);font-weight:700;line-height:1.0;letter-spacing:-.02em;color:var(--cream);margin-bottom:1.2rem}
+.hero-tagline{font-family:var(--sans);font-size:clamp(1.1rem,2.2vw,1.5rem);font-weight:400;color:var(--cream-dim);margin-bottom:1rem;line-height:1.4}
+.hero-sub{font-family:var(--sans);font-size:1.05rem;color:var(--cream-dim);max-width:520px;line-height:1.8;margin-bottom:2.8rem;opacity:.7}
+.hero-links{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+.hero-photo{display:flex;justify-content:center;align-items:center}
+.hero-photo img{width:200px;height:200px;object-fit:cover;border-radius:50%;border:2px solid var(--cream-border);box-shadow:0 8px 40px rgba(0,0,0,0.3),0 0 60px rgba(107,155,199,0.06);transition:box-shadow 0.4s}
+.hero-photo img:hover{box-shadow:0 12px 50px rgba(0,0,0,0.4),0 0 80px rgba(107,155,199,0.1)}
+.hero-grad{position:absolute;top:-30%;right:-20%;width:800px;height:800px;background:radial-gradient(circle,var(--accent-dim) 0%,transparent 65%);pointer-events:none}
+.hero-line{position:absolute;bottom:0;left:2.5rem;right:2.5rem;height:1px;background:var(--cream-border)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.3rem;border-radius:4px;font-family:var(--mono);font-size:.78rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;transition:all .25s;cursor:pointer}
+.btn-o{border:1px solid var(--cream-border);color:var(--cream-dim);background:transparent}
+.btn-o:hover{border-color:var(--cream-dim);color:var(--cream);background:rgba(237,228,211,.03)}
+.btn-p{background:var(--accent);color:var(--navy);border:1px solid var(--accent)}
+.btn-p:hover{background:#7dadd4;border-color:#7dadd4}
+.btn-lg{padding:.85rem 2rem;font-size:.82rem}
+
+/* Sections */
+.sec{padding:7rem 0}.sec-a{background:var(--navy-light)}.sec-ct{padding:9rem 0}
+.sec-l{font-family:var(--mono);font-size:.75rem;color:var(--cream-dim);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.8rem}
+.sec-t{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:600;letter-spacing:-.01em;color:var(--cream);margin-bottom:2.8rem;line-height:1.2}
+
+/* About */
+.about-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:4rem;align-items:start}
+.about-prose p{font-family:var(--serif);font-size:1.2rem;line-height:1.85;color:var(--cream-muted);margin-bottom:1.4rem}
+.about-prose p:last-child{margin-bottom:0}
+.about-prose p em{font-style:italic;color:var(--cream)}
+.about-sidebar{display:flex;flex-direction:column;gap:1.8rem}
+.about-stat{border-left:2px solid var(--cream-border);padding-left:1.2rem}
+.about-stat-num{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--cream);line-height:1.1}
+.about-stat-label{font-family:var(--mono);font-size:.75rem;color:var(--cream-dim);text-transform:uppercase;letter-spacing:.1em;margin-top:.3rem}
+.about-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem}
+.about-tag{font-family:var(--mono);font-size:.68rem;color:var(--cream-dim);background:var(--cream-faint);border:1px solid var(--cream-border);border-radius:3px;padding:.25rem .6rem}
+
+/* Timeline */
+.tl-item{display:flex;align-items:baseline;gap:2.5rem;padding:1.3rem 0;border-bottom:1px solid var(--cream-border)}
+.tl-item:last-child{border-bottom:none}
+.tl-y{font-family:var(--mono);font-weight:500;font-size:.8rem;color:var(--cream-dim);min-width:80px;flex-shrink:0}
+.tl-c{display:flex;flex-direction:column;gap:.2rem}
+.tl-header{display:flex;flex-wrap:wrap;align-items:baseline;gap:.6rem}
+.tl-l{font-family:var(--sans);font-weight:600;font-size:1rem;color:var(--cream)}
+.tl-d{font-size:.85rem;color:var(--cream-dim)}
+.tl-desc{font-family:var(--sans);font-size:.9rem;color:var(--cream-dim);opacity:.7;margin-top:.2rem;line-height:1.6;max-width:520px}
+
+/* Thinking */
+.think p{font-family:var(--serif);font-size:1.25rem;line-height:1.85;color:var(--cream-muted);margin-bottom:1.6rem}
+.think p:last-child{margin-bottom:0}
+.think p em{font-style:italic;color:var(--cream)}
+
+/* Human Stuff */
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.8rem}
+.hcard{display:flex;align-items:center;gap:1rem;padding:1.1rem 1.3rem;background:var(--cream-faint);border:1px solid var(--cream-border);border-radius:6px;transition:border-color .25s}
+.hcard:hover{border-color:rgba(237,228,211,.22)}
+.hcard-e{font-size:1.4rem;flex-shrink:0}
+.hcard-t{font-family:var(--sans);font-size:.95rem;color:var(--cream-dim);line-height:1.4}
+
+/* Contact */
+.ct-sub{font-family:var(--serif);font-size:1.2rem;color:var(--cream-muted);margin-bottom:2.5rem}
+.ct-lk{display:flex;flex-direction:column;align-items:center;gap:1.4rem}
+.ct-so{display:flex;align-items:center;gap:1.2rem}
+.ct-so a{font-family:var(--mono);font-weight:500;font-size:.78rem;color:var(--cream-dim);letter-spacing:.04em;text-transform:uppercase}
+.ct-so a:hover{color:var(--cream)}
+.ct-dot{width:3px;height:3px;border-radius:50%;background:var(--cream-dim);opacity:.5}
+
+/* Footer */
+footer{padding:1.8rem 0;border-top:1px solid var(--cream-border)}
+footer .c{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+footer span{font-family:var(--mono);font-size:.72rem;color:rgba(237,228,211,.25)}
+
+.arr{width:12px;height:12px;margin-left:5px;vertical-align:middle}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hero{padding:7rem 0 4rem;min-height:auto}
+  .hero-grid{grid-template-columns:1fr;gap:2.5rem}
+  .hero-photo{order:-1}.hero-photo img{width:160px;height:160px}
+  .sec{padding:4.5rem 0}.sec-ct{padding:5.5rem 0}
+  .about-grid{grid-template-columns:1fr}
+  .hgrid{grid-template-columns:1fr}
+  .tl-item{flex-direction:column;gap:.3rem}.tl-y{min-width:unset}
+  footer .c{flex-direction:column;text-align:center}
+}
+@media(max-width:480px){
+  .c,.cn{padding:0 1.4rem}
+  .hero-name{font-size:3rem}
+  .hero-links{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <div class="nav-in">
+    <a href="#" class="nav-logo">Rishi Prasad</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#thinking">Perspective</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="books.html">Books</a></li>
+      <li><a href="travel.html">Travel</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="c">
+    <div class="hero-grid">
+      <div>
+        <p class="hero-kicker" data-edit="hero-kicker">Zurich &mdash; Engineer &mdash; Builder</p>
+        <h1 class="hero-name" data-edit="hero-name">Rishi<br>Prasad</h1>
+        <p class="hero-tagline" data-edit="hero-tagline">Engineering mind. Banking career.<br>Now building with AI.</p>
+        <p class="hero-sub" data-edit="hero-sub">Fifteen years across UBS, Credit Suisse, and Deutsche Bank. Two engineering degrees and a Booth MBA. Left to build what I actually believe in.</p>
+        <div class="hero-links">
+          <a href="https://github.com/BergUetli" target="_blank" rel="noopener" class="btn btn-o">GitHub <svg class="arr" viewBox="0 0 14 14" fill="none"><path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a href="https://linkedin.com/in/rishiprasad" target="_blank" rel="noopener" class="btn btn-o">LinkedIn <svg class="arr" viewBox="0 0 14 14" fill="none"><path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a href="projects.html" class="btn btn-p">View Projects</a>
+        </div>
+      </div>
+      <div class="hero-photo"><img src="profile-circle.png" alt="Rishi Prasad"></div>
+    </div>
+  </div>
+  <div class="hero-grad" aria-hidden="true"></div>
+  <div class="hero-line"></div>
+</section>
+
+<!-- About -->
+<section id="about" class="sec sec-a">
+  <div class="c">
+    <p class="sec-l">About</p>
+    <h2 class="sec-t" data-edit="about-title">A bit about me.</h2>
+    <div class="about-grid">
+      <div class="about-prose" data-edit="about-prose">
+        <p>I grew up in India taking apart radios and putting them back together wrong. That instinct &mdash; <em>understand it by building it</em> &mdash; never left. I studied electronics engineering, then embedded systems, because I wanted to know how things worked all the way down to the silicon.</p>
+        <p>Then I went where the complexity was. Internal audit at UBS in Zurich, then healthcare M&amp;A at Deutsche Bank in New York, then back to Zurich for governance and analytics at Credit Suisse. Fifteen years across three banks, six countries, and every flavour of institutional complexity. Made Director. Learned that the hardest problems aren't technical; they're organisational.</p>
+        <p>Chicago Booth was the pivot. Not because of the credential, but because it forced me to think about <em>what to build</em>, not just <em>how to build it</em>. Strategy, behavioural economics, entrepreneurship &mdash; the toolkit for deciding which problems are worth solving.</p>
+        <p>In late 2024, I walked away from banking. Not from frustration &mdash; from conviction. The tools had finally caught up to the ambition. AI, specifically large language models, had made it possible for a single engineer with domain expertise to build products that previously required a team of fifty. So that's what I'm doing.</p>
+        <p>I'm Irish, Indian-born, Zurich-based. I've lived on four continents and worked across six countries. I think in systems, I build in code, and I ship before I'm comfortable.</p>
+      </div>
+      <div class="about-sidebar">
+        <div class="about-stat"><div class="about-stat-num">15+</div><div class="about-stat-label">Years in global banking</div></div>
+        <div class="about-stat"><div class="about-stat-num">6</div><div class="about-stat-label">Countries lived &amp; worked</div></div>
+        <div class="about-stat"><div class="about-stat-num">3</div><div class="about-stat-label">Degrees (BTech, MSc, MBA)</div></div>
+        <div class="about-stat"><div class="about-stat-num">5</div><div class="about-stat-label">AI products shipped since Oct 2024</div></div>
+        <div>
+          <div class="about-stat-label" style="margin-bottom:.5rem">Core Stack</div>
+          <div class="about-tags">
+            <span class="about-tag">Claude / Anthropic</span><span class="about-tag">Supabase</span><span class="about-tag">React</span><span class="about-tag">Python</span><span class="about-tag">MCP</span><span class="about-tag">Three.js</span><span class="about-tag">ElevenLabs</span><span class="about-tag">ESP32</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section id="timeline" class="sec">
+  <div class="cn">
+    <p class="sec-l">Background</p>
+    <h2 class="sec-t" data-edit="timeline-title">How I got here.</h2>
+    <div data-list="timeline">
+      <div class="tl-item" data-list-item><span class="tl-y">2024 &mdash;</span><div class="tl-c"><div class="tl-header"><span class="tl-l">Independent &mdash; AI Products</span><span class="tl-d">Zurich</span></div><div class="tl-desc">Building and shipping AI products independently. Five products in under a year &mdash; from voice memory preservation to MCP-based enterprise tools.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2022</span><div class="tl-c"><div class="tl-header"><span class="tl-l">Director &mdash; UBS / Credit Suisse</span><span class="tl-d">Zurich</span></div><div class="tl-desc">Head of Group Collaboration Governance. Led cross-functional teams across Switzerland and India, governing CHF 5bn+ in internal revenue sharing across all divisions.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2017</span><div class="tl-c"><div class="tl-header"><span class="tl-l">VP &mdash; Credit Suisse</span><span class="tl-d">Zurich</span></div><div class="tl-desc">Performance Governance and Analytics. Built the Revenue Sharing Governance Framework from the ground up. Strategic analysis for the CFO on cost structures, restructuring, and AuM growth.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2015</span><div class="tl-c"><div class="tl-header"><span class="tl-l">Deutsche Bank &mdash; Investment Banking</span><span class="tl-d">New York</span></div><div class="tl-desc">Healthcare M&amp;A on one of the top 3 teams on Wall Street. Valuation models, pitch decks, live IPOs. Summer associate in 2015, full-time associate in 2016.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2014</span><div class="tl-c"><div class="tl-header"><span class="tl-l">MBA &mdash; Chicago Booth</span><span class="tl-d">Chicago</span></div><div class="tl-desc">Finance and Entrepreneurship, full-time. Completed while working part-time remotely for UBS. GMAT 730 (96th percentile).</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2008</span><div class="tl-c"><div class="tl-header"><span class="tl-l">UBS &mdash; Internal Audit</span><span class="tl-d">Zurich</span></div><div class="tl-desc">Selected for the 2008 Graduate Trainee program. Six years rotating through Wealth Management, Asset Management, and Investment Bank IT. Made Associate Director.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2006</span><div class="tl-c"><div class="tl-header"><span class="tl-l">Alstom Power</span><span class="tl-d">Various Countries</span></div><div class="tl-desc">Commissioning Engineer. Solo I&amp;C engineer on coal and steam power plants across Switzerland, Spain, Thailand, and Dubai.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">2004</span><div class="tl-c"><div class="tl-header"><span class="tl-l">MSc Embedded Systems</span><span class="tl-d">Lugano, Switzerland</span></div><div class="tl-desc">ALaRI, Universit&agrave; della Svizzera italiana. Microcontrollers, real-time systems, signal processing. 60% merit scholarship.</div></div></div>
+      <div class="tl-item" data-list-item><span class="tl-y">1999</span><div class="tl-c"><div class="tl-header"><span class="tl-l">BTech Electronics &amp; Telecom</span><span class="tl-d">Sikkim, India</span></div><div class="tl-desc">Sikkim Manipal Institute of Technology. First Class with Distinction. The foundation &mdash; circuit design, digital systems, and the instinct to understand by building.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Perspective -->
+<section id="thinking" class="sec sec-a">
+  <div class="cn">
+    <p class="sec-l">Perspective</p>
+    <h2 class="sec-t" data-edit="perspective-title">What I've come to believe.</h2>
+    <div class="think" data-edit="perspective-body">
+      <p>The majority of what passes for AI product development is remarkably thin &mdash; an API call dressed up with a landing page. The harder, more valuable work is understanding <em>where AI genuinely changes the economics of a problem</em>, not where it adds a chatbot to an existing workflow.</p>
+      <p>I spent fifteen years inside institutions that routinely spent eight figures on systems their own people refused to use. The failure mode was always the same: optimising for procurement committees rather than end users. I see AI companies making precisely the same mistake, only faster. The advantage now belongs to small teams with domain knowledge and the discipline to ship.</p>
+      <p>My stack is Claude, Supabase, and whatever moves the product forward. No research lab, no advisory board, no pitch deck. Deployed software, real users, honest feedback. That, in my experience, is where conviction actually comes from.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Human Stuff -->
+<section class="sec">
+  <div class="c">
+    <p class="sec-l">Off the Clock</p>
+    <h2 class="sec-t" data-edit="human-title">The other dimensions.</h2>
+    <div class="hgrid" data-list="hobbies">
+      <div class="hcard" data-list-item><span class="hcard-e">&#127925;</span><span class="hcard-t">Music production &mdash; Suno AI</span></div>
+      <div class="hcard" data-list-item><span class="hcard-e">&#128295;</span><span class="hcard-t">Hardware &mdash; ESP32, M5Stack</span></div>
+      <div class="hcard" data-list-item><span class="hcard-e">&#9981;</span><span class="hcard-t">Keelboat sailing, Level 3</span></div>
+      <div class="hcard" data-list-item><span class="hcard-e">&#127758;</span><span class="hcard-t">India, Switzerland, USA, Spain, Thailand, Dubai</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="sec sec-ct">
+  <div class="c" style="text-align:center">
+    <p class="sec-l">Contact</p>
+    <h2 class="sec-t" data-edit="contact-title">Let's have a conversation.</h2>
+    <p class="ct-sub" data-edit="contact-sub">Building something that matters, or simply want to exchange ideas &mdash; I'm always interested.</p>
+    <div class="ct-lk">
+      <a href="mailto:rishirp@gmail.com" class="btn btn-p btn-lg">rishirp@gmail.com</a>
+      <div class="ct-so">
+        <a href="https://github.com/BergUetli" target="_blank" rel="noopener">GitHub</a>
+        <span class="ct-dot"></span>
+        <a href="https://linkedin.com/in/rishiprasad" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="c"><span>&copy; 2026 Rishi Prasad</span><span>Zurich, Switzerland</span></div></footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('topnav').classList.toggle('scrolled',window.scrollY>60)})
+</script>
+<script src="admin.js"></script>
+<script>
+// Enable list editing for timeline and hobbies
+document.addEventListener('DOMContentLoaded', function() {
+  window._admin.enableListEditing('[data-list="timeline"]', '[data-list-item]', function() {
+    return '<div class="tl-item" data-list-item><span class="tl-y">Year</span><div class="tl-c"><div class="tl-header"><span class="tl-l">Role — Company</span><span class="tl-d">Location</span></div><div class="tl-desc">Description of this role or milestone.</div></div></div>';
+  });
+  window._admin.enableListEditing('[data-list="hobbies"]', '[data-list-item]', function() {
+    return '<div class="hcard" data-list-item><span class="hcard-e">&#127775;</span><span class="hcard-t">New interest or hobby</span></div>';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Travel — Rishi Prasad</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- D3 + TopoJSON -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+
+<style>
+/* ── Design Tokens ── */
+:root {
+  --navy: #050D18;
+  --navy-light: #0A1628;
+  --cream: #EDE4D3;
+  --cream-dim: rgba(237, 228, 211, 0.55);
+  --cream-muted: rgba(237, 228, 211, 0.72);
+  --cream-border: rgba(237, 228, 211, 0.08);
+  --cream-faint: rgba(237, 228, 211, 0.02);
+  --accent: #6B9BC7;
+  --accent-dim: rgba(107, 155, 199, 0.08);
+  --green: #7BAE7F;
+  --amber: #C4A24E;
+  --red: #C75B5B;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --color-lived: #6B9BC7;
+  --color-worked: #C4A24E;
+  --color-visited: #7BAE7F;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--navy);
+  color: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── Container ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2.5rem; }
+
+/* ── Nav ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0.85rem 0;
+  background: rgba(5, 13, 24, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--cream-border);
+}
+.nav__inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav__logo { font-family: var(--serif); font-weight: 600; font-size: 1.4rem; color: var(--cream); letter-spacing: 0.02em; }
+.nav__logo:hover { color: var(--accent); }
+.nav__links { list-style: none; display: flex; gap: 2.5rem; }
+.nav__links a {
+  color: var(--cream-dim); font-family: var(--mono); font-size: 0.75rem;
+  font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s;
+}
+.nav__links a:hover { color: var(--cream); }
+.nav__links a.active { color: var(--cream); }
+
+/* ── Page Header ── */
+.page-header { padding: 10rem 0 3rem; }
+.section__label {
+  font-family: var(--mono); font-size: 0.75rem; font-weight: 400;
+  color: var(--cream-dim); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.8rem;
+}
+.section__title {
+  font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 600; letter-spacing: -0.01em; color: var(--cream); margin-bottom: 1.5rem; line-height: 1.2;
+}
+.page-intro {
+  font-family: var(--serif); font-size: 1.15rem; color: var(--cream-muted);
+  max-width: 620px; line-height: 1.8;
+}
+
+/* ── Map Section ── */
+.map-section { padding: 0 0 4rem; }
+.map-wrapper {
+  position: relative;
+  background: var(--navy-light);
+  border: 1px solid var(--cream-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.map-wrapper svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.map-wrapper svg .country {
+  fill: rgba(237, 228, 211, 0.04);
+  stroke: rgba(237, 228, 211, 0.08);
+  stroke-width: 0.4;
+  transition: fill 0.3s, stroke 0.3s;
+  cursor: pointer;
+}
+.map-wrapper svg .country:hover {
+  fill: rgba(237, 228, 211, 0.12);
+  stroke: rgba(237, 228, 211, 0.2);
+}
+.map-wrapper svg .country.lived {
+  fill: rgba(107, 155, 199, 0.35);
+  stroke: var(--color-lived);
+  stroke-width: 0.8;
+}
+.map-wrapper svg .country.worked {
+  fill: rgba(196, 162, 78, 0.3);
+  stroke: var(--color-worked);
+  stroke-width: 0.8;
+}
+.map-wrapper svg .country.visited {
+  fill: rgba(123, 174, 127, 0.25);
+  stroke: var(--color-visited);
+  stroke-width: 0.8;
+}
+.map-wrapper svg .country.lived:hover { fill: rgba(107, 155, 199, 0.5); }
+.map-wrapper svg .country.worked:hover { fill: rgba(196, 162, 78, 0.45); }
+.map-wrapper svg .country.visited:hover { fill: rgba(123, 174, 127, 0.4); }
+
+/* City markers */
+.city-marker {
+  pointer-events: all;
+  cursor: pointer;
+}
+.city-marker circle {
+  fill: var(--cream);
+  stroke: var(--navy);
+  stroke-width: 0.5;
+}
+.city-marker:hover circle {
+  fill: var(--accent);
+}
+.city-marker text {
+  font-family: var(--mono);
+  font-size: 3.5px;
+  fill: var(--cream);
+  text-anchor: middle;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.city-marker .city-remove {
+  font-size: 4px;
+  fill: var(--red);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.city-marker:hover .city-remove {
+  opacity: 0.8;
+}
+
+/* Map zoom controls */
+.map-controls {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 5;
+}
+.map-ctrl {
+  width: 30px; height: 30px;
+  background: rgba(5, 13, 24, 0.85);
+  border: 1px solid var(--cream-border);
+  border-radius: 4px;
+  color: var(--cream-dim);
+  font-family: var(--mono);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.map-ctrl:hover {
+  border-color: var(--cream-dim);
+  color: var(--cream);
+  background: rgba(5, 13, 24, 0.95);
+}
+.map-ctrl--reset {
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+/* Zoom hint */
+.map-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--cream-dim);
+  opacity: 0.4;
+  z-index: 5;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+.map-hint.hidden { opacity: 0; }
+
+/* Country pulse animation for marked countries */
+@keyframes countryPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+.map-wrapper svg .country.lived,
+.map-wrapper svg .country.worked,
+.map-wrapper svg .country.visited {
+  animation: countryPulse 4s ease-in-out infinite;
+}
+.map-wrapper svg .country.lived { animation-delay: 0s; }
+.map-wrapper svg .country.worked { animation-delay: 1.3s; }
+.map-wrapper svg .country.visited { animation-delay: 2.6s; }
+
+/* City add popup */
+.city-popup {
+  position: absolute;
+  background: rgba(5, 13, 24, 0.95);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  z-index: 20;
+  display: none;
+  min-width: 200px;
+}
+.city-popup.visible { display: block; }
+.city-popup label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--cream-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.city-popup input {
+  background: rgba(237, 228, 211, 0.06);
+  border: 1px solid var(--cream-border);
+  border-radius: 4px;
+  padding: 0.45rem 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--cream);
+  outline: none;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+.city-popup input:focus { border-color: var(--accent); }
+.city-popup-actions {
+  display: flex; gap: 0.5rem;
+}
+.city-popup-actions button {
+  flex: 1;
+  padding: 0.35rem 0.6rem;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.city-popup-actions .btn-add-city {
+  background: var(--accent);
+  color: var(--navy);
+  border: 1px solid var(--accent);
+}
+.city-popup-actions .btn-add-city:hover { background: #7dadd4; }
+.city-popup-actions .btn-cancel-city {
+  background: transparent;
+  color: var(--cream-dim);
+  border: 1px solid var(--cream-border);
+}
+.city-popup-actions .btn-cancel-city:hover { color: var(--cream); border-color: var(--cream-dim); }
+
+/* Tooltip */
+.map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(5, 13, 24, 0.95);
+  border: 1px solid var(--cream-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--cream);
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+  white-space: nowrap;
+}
+.map-tooltip.visible { opacity: 1; }
+.map-tooltip .tt-cat {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.2rem;
+}
+.map-tooltip .tt-cat.lived { color: var(--color-lived); }
+.map-tooltip .tt-cat.worked { color: var(--color-worked); }
+.map-tooltip .tt-cat.visited { color: var(--color-visited); }
+
+/* Legend */
+.map-legend {
+  display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--cream-dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.legend-dot.lived { background: var(--color-lived); }
+.legend-dot.worked { background: var(--color-worked); }
+.legend-dot.visited { background: var(--color-visited); }
+
+.map-stats {
+  margin-left: auto;
+  display: flex; gap: 1.5rem; align-items: center;
+}
+.map-stat {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--cream-dim);
+  letter-spacing: 0.04em;
+}
+.map-stat strong {
+  color: var(--cream); font-weight: 600; font-size: 1rem;
+  font-family: var(--serif); margin-right: 0.3rem;
+}
+
+/* ── Add Panel ── */
+.add-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.55rem 1.1rem; border-radius: 4px;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid rgba(107, 155, 199, 0.2);
+  cursor: pointer; transition: all 0.25s;
+  margin-left: 1rem;
+}
+.add-btn:hover {
+  background: rgba(107, 155, 199, 0.15);
+  border-color: var(--accent);
+}
+.add-btn svg { width: 12px; height: 12px; }
+
+.add-panel {
+  display: none;
+  background: var(--navy-light);
+  border: 1px solid var(--cream-border);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-top: 1.5rem;
+}
+.add-panel.open { display: block; }
+.add-panel h3 {
+  font-family: var(--sans); font-size: 1rem; font-weight: 600;
+  color: var(--cream); margin-bottom: 1.5rem;
+}
+.form-row {
+  display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;
+}
+.form-group {
+  display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 200px;
+}
+.form-group label {
+  font-family: var(--mono); font-size: 0.68rem; color: var(--cream-dim);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: rgba(237, 228, 211, 0.04);
+  border: 1px solid var(--cream-border);
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--cream);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+}
+.form-group select { cursor: pointer; }
+.form-group select option { background: var(--navy); color: var(--cream); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.form-actions {
+  display: flex; gap: 0.8rem; margin-top: 0.5rem;
+}
+.btn-save {
+  padding: 0.55rem 1.2rem; border-radius: 4px;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--accent); color: var(--navy);
+  border: 1px solid var(--accent); cursor: pointer; transition: all 0.25s;
+}
+.btn-save:hover { background: #7dadd4; border-color: #7dadd4; }
+.btn-cancel {
+  padding: 0.55rem 1.2rem; border-radius: 4px;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  background: transparent; color: var(--cream-dim);
+  border: 1px solid var(--cream-border); cursor: pointer; transition: all 0.25s;
+}
+.btn-cancel:hover { border-color: var(--cream-dim); color: var(--cream); }
+
+.form-hint {
+  font-family: var(--mono); font-size: 0.65rem; color: var(--cream-dim);
+  opacity: 0.6; margin-top: 0.3rem;
+}
+
+/* ── Travel Entries ── */
+.entries-section {
+  padding: 4rem 0 6rem;
+  border-top: 1px solid var(--cream-border);
+}
+.entries-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.entries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.2rem;
+}
+.entry-card {
+  position: relative;
+  background: var(--cream-faint);
+  border: 1px solid var(--cream-border);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.entry-card:hover {
+  border-color: rgba(237, 228, 211, 0.15);
+  transform: translateY(-2px);
+}
+.entry-card__video {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: rgba(237, 228, 211, 0.03);
+}
+.entry-card__video iframe {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  border: none;
+}
+.entry-card__video-placeholder {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--cream-dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.entry-card__body { padding: 1.4rem 1.6rem; }
+.entry-card__location {
+  font-family: var(--mono); font-size: 0.68rem; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.entry-card__location svg {
+  width: 10px; height: 10px; opacity: 0.6; flex-shrink: 0;
+}
+.entry-card__date {
+  font-family: var(--mono); font-size: 0.62rem; color: var(--cream-dim);
+  opacity: 0.6; margin-left: auto;
+}
+.entry-card__title {
+  font-family: var(--serif); font-size: 1.25rem; font-weight: 600;
+  color: var(--cream); margin-bottom: 0.6rem; line-height: 1.3;
+}
+.entry-card__desc {
+  font-family: var(--sans); font-size: 0.88rem; color: var(--cream-dim);
+  line-height: 1.7;
+}
+.entry-card__number {
+  font-family: var(--serif); font-size: 2.5rem; font-weight: 700;
+  color: rgba(237, 228, 211, 0.04); position: absolute;
+  top: 0.6rem; right: 1rem; line-height: 1; pointer-events: none;
+}
+.entry-card__remove {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--mono); font-size: 0.6rem; color: var(--red);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 0.3rem 0; margin-top: 0.8rem; opacity: 0;
+  transition: opacity 0.2s;
+}
+.entry-card:hover .entry-card__remove { opacity: 0.6; }
+.entry-card__remove:hover { opacity: 1; }
+
+.empty-state {
+  text-align: center; padding: 4rem 2rem;
+  border: 1px dashed var(--cream-border); border-radius: 8px;
+}
+.empty-state p {
+  font-family: var(--serif); font-size: 1.1rem; color: var(--cream-dim);
+  margin-bottom: 0.5rem;
+}
+.empty-state small {
+  font-family: var(--mono); font-size: 0.7rem; color: var(--cream-dim); opacity: 0.5;
+}
+
+/* ── Back Link ── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.78rem; color: var(--cream-dim);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  margin: 2rem 0; transition: color 0.2s;
+}
+.back-link:hover { color: var(--cream); }
+
+/* ── Footer ── */
+.footer {
+  padding: 1.8rem 0; border-top: 1px solid var(--cream-border);
+}
+.footer .container {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.5rem;
+}
+.footer span {
+  font-family: var(--mono); font-size: 0.72rem;
+  color: rgba(237, 228, 211, 0.25); letter-spacing: 0.02em;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .nav__links { display: none; }
+  .page-header { padding: 7rem 0 2rem; }
+  .entries-grid { grid-template-columns: 1fr; }
+  .map-legend { flex-direction: column; gap: 0.6rem; }
+  .map-stats { margin-left: 0; }
+  .form-row { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .container { padding: 0 1.4rem; }
+}
+</style>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">Rishi Prasad</a>
+    <ul class="nav__links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#timeline">Timeline</a></li>
+      <li><a href="index.html#thinking">Perspective</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="books.html">Books</a></li>
+      <li><a href="travel.html" class="active">Travel</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<section class="page-header">
+  <div class="container">
+    <p class="section__label">Atlas</p>
+    <h2 class="section__title" data-edit="travel-title">Places that shaped me.</h2>
+    <p class="page-intro" data-edit="travel-intro">
+      Six countries lived and worked across. Four continents. From commissioning power plants in Thailand to pitching healthcare M&A in Manhattan — every place left a mark.
+    </p>
+  </div>
+</section>
+
+<!-- Map -->
+<section class="map-section">
+  <div class="container">
+    <div class="map-wrapper">
+      <div id="map"></div>
+      <div class="map-tooltip" id="tooltip"></div>
+      <div class="map-controls">
+        <button class="map-ctrl" onclick="zoomIn()" title="Zoom in">+</button>
+        <button class="map-ctrl" onclick="zoomOut()" title="Zoom out">&minus;</button>
+        <button class="map-ctrl map-ctrl--reset" onclick="zoomReset()" title="Reset view">FIT</button>
+      </div>
+      <div class="map-hint" id="mapHint">Scroll to zoom &middot; Drag to pan &middot; Click a marked country to add cities</div>
+      <div class="city-popup" id="cityPopup">
+        <label>Add a city marker</label>
+        <input type="text" id="cityNameInput" placeholder="City name" />
+        <div class="city-popup-actions">
+          <button class="btn-add-city" onclick="confirmAddCity()">Add</button>
+          <button class="btn-cancel-city" onclick="closeCityPopup()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-legend">
+      <div class="legend-item"><span class="legend-dot lived"></span> Lived</div>
+      <div class="legend-item"><span class="legend-dot worked"></span> Worked</div>
+      <div class="legend-item"><span class="legend-dot visited"></span> Visited</div>
+
+      <button class="add-btn" id="addCountryBtn" onclick="toggleAddPanel('country')">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add Country
+      </button>
+
+      <div class="map-stats">
+        <div class="map-stat"><strong id="statCountries">0</strong> countries</div>
+        <div class="map-stat"><strong id="statContinents">0</strong> continents</div>
+      </div>
+    </div>
+
+    <!-- Add Country Panel -->
+    <div class="add-panel" id="addCountryPanel">
+      <h3>Add a country</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Country</label>
+          <select id="countrySelect">
+            <option value="">— Select country —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="categorySelect">
+            <option value="lived">Lived</option>
+            <option value="worked">Worked</option>
+            <option value="visited">Visited</option>
+          </select>
+        </div>
+      </div>
+      <p class="form-hint">Tip: you can also click a country on the map to select it.</p>
+      <div class="form-actions">
+        <button class="btn-save" onclick="saveCountry()">Add Country</button>
+        <button class="btn-cancel" onclick="toggleAddPanel('country')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Travel Entries -->
+<section class="entries-section">
+  <div class="container">
+    <div class="entries-header">
+      <div>
+        <p class="section__label">Journal</p>
+        <h2 class="section__title" style="margin-bottom: 0;">Travel entries.</h2>
+      </div>
+      <button class="add-btn" onclick="toggleAddPanel('entry')">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        New Entry
+      </button>
+    </div>
+
+    <!-- Add Entry Panel -->
+    <div class="add-panel" id="addEntryPanel">
+      <h3>New travel entry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="entryTitle" placeholder="e.g. Commissioning in Dubai" />
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="entryLocation" placeholder="e.g. Dubai, UAE" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="text" id="entryDate" placeholder="e.g. Summer 2006" />
+        </div>
+        <div class="form-group">
+          <label>Video URL (optional)</label>
+          <input type="text" id="entryVideo" placeholder="YouTube or Vimeo embed URL" />
+          <p class="form-hint">Any YouTube or Vimeo URL — auto-converts to embed</p>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="entryDesc" placeholder="Write about this place..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" onclick="saveEntry()">Save Entry</button>
+        <button class="btn-cancel" onclick="toggleAddPanel('entry')">Cancel</button>
+      </div>
+    </div>
+
+    <div id="entriesGrid" class="entries-grid"></div>
+  </div>
+</section>
+
+<!-- Back -->
+<div class="container">
+  <a href="index.html" class="back-link">
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="transform:rotate(180deg)">
+      <path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to home
+  </a>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <span>&copy; 2026 Rishi Prasad</span>
+    <span>Zurich, Switzerland</span>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════
+   Data & State
+   ═══════════════════════════════════ */
+
+const DEFAULT_COUNTRIES = [
+  { name: 'India',       id: '356', category: 'lived',  cities: ['Sikkim'] },
+  { name: 'Switzerland', id: '756', category: 'lived',  cities: ['Zurich', 'Lugano'] },
+  { name: 'United States of America', id: '840', category: 'lived', cities: ['Chicago', 'New York'] },
+  { name: 'Spain',       id: '724', category: 'worked', cities: [] },
+  { name: 'Thailand',    id: '764', category: 'worked', cities: [] },
+  { name: 'United Arab Emirates', id: '784', category: 'worked', cities: ['Dubai'] },
+];
+
+const DEFAULT_ENTRIES = [
+  {
+    id: 1,
+    title: 'Commissioning in the desert',
+    location: 'Dubai, UAE',
+    date: 'Summer 2006',
+    video: '',
+    desc: 'Power plant commissioning in 45°C heat. The kind of work that teaches you patience isn\'t a virtue — it\'s a survival skill.'
+  },
+  {
+    id: 2,
+    title: 'The alpine reset',
+    location: 'Zurich, Switzerland',
+    date: '2018 — present',
+    video: '',
+    desc: 'Moved for the mountains, stayed for the precision. Switzerland taught me that quality of life isn\'t a luxury — it\'s infrastructure.'
+  },
+  {
+    id: 3,
+    title: 'Wall Street winters',
+    location: 'New York, USA',
+    date: '2014 — 2018',
+    video: '',
+    desc: 'Healthcare M&A on Madison Avenue. Four years of pitchbooks, red-eyes, and learning that conviction matters more than consensus.'
+  },
+];
+
+// Known city coordinates [lon, lat] — grows as user adds cities
+const CITY_COORDS = {
+  'Zurich':    [8.54, 47.37],
+  'Lugano':    [8.95, 46.00],
+  'Chicago':   [-87.63, 41.88],
+  'New York':  [-74.00, 40.71],
+  'Sikkim':    [88.51, 27.33],
+  'Dubai':     [55.27, 25.20],
+};
+
+const COUNTRY_CONTINENTS = {
+  '356': 'Asia', '756': 'Europe', '840': 'North America', '724': 'Europe',
+  '764': 'Asia', '784': 'Asia', '076': 'South America', '036': 'Oceania',
+  '710': 'Africa', '392': 'Asia', '826': 'Europe', '250': 'Europe',
+  '276': 'Europe', '380': 'Europe', '484': 'North America', '124': 'North America',
+  '156': 'Asia', '410': 'Asia', '458': 'Asia', '360': 'Asia', '608': 'Asia',
+  '704': 'Asia', '144': 'Asia', '524': 'Asia', '050': 'Asia', '586': 'Asia',
+  '364': 'Asia', '368': 'Asia', '682': 'Asia', '818': 'Africa', '504': 'Africa',
+  '404': 'Africa', '566': 'Africa', '170': 'South America', '032': 'South America',
+  '152': 'South America', '604': 'South America', '554': 'Oceania',
+};
+
+// Persistence
+function loadCountries() {
+  const stored = localStorage.getItem('rp_travel_countries');
+  if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+  return DEFAULT_COUNTRIES.map(c => ({...c}));
+}
+function persistCountries() { localStorage.setItem('rp_travel_countries', JSON.stringify(countries)); }
+
+function loadCityCoords() {
+  const stored = localStorage.getItem('rp_travel_citycoords');
+  if (stored) { try { return {...CITY_COORDS, ...JSON.parse(stored)}; } catch(e) {} }
+  return {...CITY_COORDS};
+}
+function persistCityCoords() {
+  // Only save non-default coords
+  const extra = {};
+  Object.keys(cityCoords).forEach(k => { if (!CITY_COORDS[k]) extra[k] = cityCoords[k]; });
+  localStorage.setItem('rp_travel_citycoords', JSON.stringify(extra));
+}
+
+function loadEntries() {
+  const stored = localStorage.getItem('rp_travel_entries');
+  if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+  return [...DEFAULT_ENTRIES];
+}
+function persistEntries() { localStorage.setItem('rp_travel_entries', JSON.stringify(entries)); }
+
+let countries = loadCountries();
+let cityCoords = loadCityCoords();
+let entries = loadEntries();
+let worldData = null;
+let countryNames = {};
+let pendingCityClick = null; // {countryId, lon, lat} for city popup
+
+/* ═══════════════════════════════════
+   Map Setup with Zoom/Pan
+   ═══════════════════════════════════ */
+
+const width = 960;
+const height = 500;
+
+const projection = d3.geoNaturalEarth1()
+  .scale(160)
+  .translate([width / 2, height / 2 + 20]);
+
+const path = d3.geoPath().projection(projection);
+
+const svg = d3.select('#map')
+  .append('svg')
+  .attr('viewBox', `0 0 ${width} ${height}`)
+  .attr('preserveAspectRatio', 'xMidYMid meet');
+
+// Background rect for drag/zoom on empty areas
+svg.append('rect')
+  .attr('width', width)
+  .attr('height', height)
+  .attr('fill', 'transparent')
+  .style('cursor', 'grab');
+
+const g = svg.append('g');
+
+// D3 zoom behavior
+const zoom = d3.zoom()
+  .scaleExtent([1, 12])
+  .on('zoom', (event) => {
+    g.attr('transform', event.transform);
+    // Scale-dependent label visibility & dot sizing
+    const k = event.transform.k;
+    g.selectAll('.city-marker text:not(.city-remove)').style('opacity', k >= 3 ? 0.85 : 0);
+    g.selectAll('.city-marker circle').attr('r', Math.max(0.8, 1.2 / Math.sqrt(k)));
+    g.selectAll('.city-marker .city-remove').style('font-size', Math.max(3, 5 / Math.sqrt(k)) + 'px');
+    // Hide hint after first interaction
+    document.getElementById('mapHint').classList.add('hidden');
+  });
+
+svg.call(zoom);
+
+// Zoom control functions
+function zoomIn() {
+  svg.transition().duration(400).call(zoom.scaleBy, 1.8);
+}
+function zoomOut() {
+  svg.transition().duration(400).call(zoom.scaleBy, 0.55);
+}
+function zoomReset() {
+  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
+}
+function zoomToCountry(countryId) {
+  const el = g.select(`.country[data-id="${countryId}"]`);
+  if (el.empty()) return;
+  const bounds = path.bounds(el.datum());
+  const dx = bounds[1][0] - bounds[0][0];
+  const dy = bounds[1][1] - bounds[0][1];
+  const cx = (bounds[0][0] + bounds[1][0]) / 2;
+  const cy = (bounds[0][1] + bounds[1][1]) / 2;
+  const scale = Math.min(8, 0.8 / Math.max(dx / width, dy / height));
+  const tx = width / 2 - scale * cx;
+  const ty = height / 2 - scale * cy;
+  svg.transition().duration(750).call(
+    zoom.transform,
+    d3.zoomIdentity.translate(tx, ty).scale(scale)
+  );
+}
+
+// Graticule
+const graticule = d3.geoGraticule();
+g.append('path')
+  .datum(graticule())
+  .attr('d', path)
+  .attr('fill', 'none')
+  .attr('stroke', 'rgba(237, 228, 211, 0.03)')
+  .attr('stroke-width', 0.3);
+
+/* ═══════════════════════════════════
+   Load World Data & Render
+   ═══════════════════════════════════ */
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(function(world) {
+  worldData = world;
+  const features = topojson.feature(world, world.objects.countries).features;
+
+  features.forEach(f => { countryNames[f.id] = f.properties.name; });
+
+  // Populate dropdown
+  const select = document.getElementById('countrySelect');
+  features.map(f => ({ id: f.id, name: f.properties.name }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      select.appendChild(opt);
+    });
+
+  // Draw countries
+  g.selectAll('.country')
+    .data(features)
+    .enter()
+    .append('path')
+    .attr('class', d => {
+      const match = countries.find(c => c.id === String(d.id));
+      return 'country' + (match ? ' ' + match.category : '');
+    })
+    .attr('d', path)
+    .attr('data-id', d => d.id)
+    .attr('data-name', d => d.properties.name)
+    .on('mouseover', handleMouseOver)
+    .on('mousemove', handleMouseMove)
+    .on('mouseout', handleMouseOut)
+    .on('click', handleCountryClick);
+
+  drawCityMarkers();
+  updateStats();
+});
+
+/* ═══════════════════════════════════
+   City Markers
+   ═══════════════════════════════════ */
+
+function drawCityMarkers() {
+  g.selectAll('.city-marker').remove();
+
+  const allCities = [];
+  countries.forEach(c => {
+    (c.cities || []).forEach(city => {
+      if (cityCoords[city]) {
+        allCities.push({ name: city, coords: cityCoords[city], countryId: c.id });
+      }
+    });
+  });
+
+  const markers = g.selectAll('.city-marker')
+    .data(allCities)
+    .enter()
+    .append('g')
+    .attr('class', 'city-marker')
+    .attr('transform', d => `translate(${projection(d.coords)})`);
+
+  markers.append('circle').attr('r', 1.2);
+  markers.append('text').text(d => d.name).attr('dy', -3);
+
+  // Remove button (x)
+  markers.append('text')
+    .attr('class', 'city-remove')
+    .text('\u00d7')
+    .attr('dx', 5)
+    .attr('dy', 1.5)
+    .style('font-size', '5px')
+    .style('cursor', 'pointer')
+    .on('click', function(event, d) {
+      event.stopPropagation();
+      removeCity(d.countryId, d.name);
+    });
+}
+
+function removeCity(countryId, cityName) {
+  const c = countries.find(c => c.id === countryId);
+  if (c) {
+    c.cities = c.cities.filter(n => n !== cityName);
+    persistCountries();
+    drawCityMarkers();
+  }
+}
+
+/* ═══════════════════════════════════
+   Tooltip & Interactions
+   ═══════════════════════════════════ */
+
+function handleMouseOver(event, d) {
+  const tooltip = document.getElementById('tooltip');
+  const match = countries.find(c => c.id === String(d.id));
+  let html = `<strong>${d.properties.name}</strong>`;
+  if (match) {
+    html += `<div class="tt-cat ${match.category}">${match.category}</div>`;
+    if (match.cities && match.cities.length) {
+      html += `<div style="font-size:0.6rem;color:rgba(237,228,211,0.5);margin-top:2px">${match.cities.join(' \u00b7 ')}</div>`;
+    }
+    html += `<div style="font-size:0.55rem;color:rgba(107,155,199,0.6);margin-top:3px">Click to add a city</div>`;
+  }
+  tooltip.innerHTML = html;
+  tooltip.classList.add('visible');
+}
+
+function handleMouseMove(event) {
+  const tooltip = document.getElementById('tooltip');
+  const rect = document.querySelector('.map-wrapper').getBoundingClientRect();
+  const x = event.clientX - rect.left + 14;
+  const y = event.clientY - rect.top - 14;
+  // Keep tooltip in bounds
+  tooltip.style.left = Math.min(x, rect.width - 160) + 'px';
+  tooltip.style.top = Math.max(y, 10) + 'px';
+}
+
+function handleMouseOut() {
+  document.getElementById('tooltip').classList.remove('visible');
+}
+
+function handleCountryClick(event, d) {
+  const countryId = String(d.id);
+  const match = countries.find(c => c.id === countryId);
+
+  if (match) {
+    // Country is already marked — open city popup at click location
+    const svgEl = document.querySelector('#map svg');
+    const pt = svgEl.createSVGPoint();
+    pt.x = event.clientX;
+    pt.y = event.clientY;
+    const svgPt = pt.matrixTransform(svgEl.getScreenCTM().inverse());
+    // Get current zoom transform
+    const transform = d3.zoomTransform(svgEl);
+    const mapX = (svgPt.x - transform.x) / transform.k;
+    const mapY = (svgPt.y - transform.y) / transform.k;
+    const lonLat = projection.invert([mapX, mapY]);
+
+    if (lonLat) {
+      pendingCityClick = { countryId, lon: lonLat[0], lat: lonLat[1] };
+      showCityPopup(event.clientX, event.clientY);
+    }
+  } else {
+    // Country not marked — open the add country panel
+    const panel = document.getElementById('addCountryPanel');
+    if (!panel.classList.contains('open')) {
+      panel.classList.add('open');
+    }
+    document.getElementById('countrySelect').value = countryId;
+    // Scroll to panel
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+/* ═══════════════════════════════════
+   City Popup
+   ═══════════════════════════════════ */
+
+function showCityPopup(clientX, clientY) {
+  const popup = document.getElementById('cityPopup');
+  const rect = document.querySelector('.map-wrapper').getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  popup.style.left = Math.min(x, rect.width - 220) + 'px';
+  popup.style.top = Math.min(y + 10, rect.height - 100) + 'px';
+  popup.classList.add('visible');
+  const input = document.getElementById('cityNameInput');
+  input.value = '';
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeCityPopup() {
+  document.getElementById('cityPopup').classList.remove('visible');
+  pendingCityClick = null;
+}
+
+function confirmAddCity() {
+  const name = document.getElementById('cityNameInput').value.trim();
+  if (!name || !pendingCityClick) return;
+
+  const { countryId, lon, lat } = pendingCityClick;
+
+  // Save city coords
+  cityCoords[name] = [lon, lat];
+  persistCityCoords();
+
+  // Add to country
+  const c = countries.find(c => c.id === countryId);
+  if (c) {
+    if (!c.cities.includes(name)) {
+      c.cities.push(name);
+      persistCountries();
+    }
+  }
+
+  closeCityPopup();
+  drawCityMarkers();
+}
+
+// Enter key in city input
+document.getElementById('cityNameInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmAddCity();
+  if (e.key === 'Escape') closeCityPopup();
+});
+
+/* ═══════════════════════════════════
+   Map State Updates
+   ═══════════════════════════════════ */
+
+function updateMapClasses() {
+  g.selectAll('.country')
+    .transition()
+    .duration(400)
+    .attr('class', function() {
+      const id = this.getAttribute('data-id');
+      const match = countries.find(c => c.id === String(id));
+      return 'country' + (match ? ' ' + match.category : '');
+    });
+  drawCityMarkers();
+  updateStats();
+}
+
+function updateStats() {
+  const uniqueCountries = new Set(countries.map(c => c.id));
+  const continents = new Set();
+  countries.forEach(c => {
+    const cont = COUNTRY_CONTINENTS[c.id];
+    if (cont) continents.add(cont);
+  });
+  document.getElementById('statCountries').textContent = uniqueCountries.size;
+  document.getElementById('statContinents').textContent = continents.size;
+}
+
+/* ═══════════════════════════════════
+   Add Country Panel
+   ═══════════════════════════════════ */
+
+function toggleAddPanel(type) {
+  const panel = document.getElementById(type === 'entry' ? 'addEntryPanel' : 'addCountryPanel');
+  panel.classList.toggle('open');
+}
+
+function saveCountry() {
+  const id = document.getElementById('countrySelect').value;
+  const category = document.getElementById('categorySelect').value;
+  if (!id) { alert('Please select a country.'); return; }
+
+  const existing = countries.findIndex(c => c.id === id);
+  if (existing >= 0) {
+    countries[existing].category = category;
+  } else {
+    const name = countryNames[id] || 'Unknown';
+    countries.push({ name, id, category, cities: [] });
+  }
+
+  persistCountries();
+  updateMapClasses();
+
+  // Zoom to the newly added country
+  zoomToCountry(id);
+
+  document.getElementById('countrySelect').value = '';
+  document.getElementById('addCountryPanel').classList.remove('open');
+}
+
+/* ═══════════════════════════════════
+   Travel Entries
+   ═══════════════════════════════════ */
+
+function saveEntry() {
+  const title = document.getElementById('entryTitle').value.trim();
+  const location = document.getElementById('entryLocation').value.trim();
+  const date = document.getElementById('entryDate').value.trim();
+  const video = document.getElementById('entryVideo').value.trim();
+  const desc = document.getElementById('entryDesc').value.trim();
+
+  if (!title || !location) {
+    alert('Please fill in at least a title and location.');
+    return;
+  }
+
+  entries.push({ id: Date.now(), title, location, date, video: normalizeVideoUrl(video), desc });
+  persistEntries();
+  renderEntries();
+
+  ['entryTitle', 'entryLocation', 'entryDate', 'entryVideo', 'entryDesc'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('addEntryPanel').classList.remove('open');
+}
+
+function removeEntry(id) {
+  if (!confirm('Remove this entry?')) return;
+  entries = entries.filter(e => e.id !== id);
+  persistEntries();
+  renderEntries();
+}
+
+function normalizeVideoUrl(url) {
+  if (!url) return '';
+  // Convert youtube.com/watch?v=X to embed URL
+  const watchMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  // Convert vimeo.com/123456 to embed
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  // Already an embed URL or other
+  return url;
+}
+
+function renderEntries() {
+  const grid = document.getElementById('entriesGrid');
+
+  if (entries.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <p>No travel entries yet.</p>
+        <small>Click "New Entry" above to add your first story.</small>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = entries.map((e, i) => {
+    const embedUrl = normalizeVideoUrl(e.video);
+    return `
+    <div class="entry-card">
+      <span class="entry-card__number">${String(i + 1).padStart(2, '0')}</span>
+      ${embedUrl ? `
+        <div class="entry-card__video">
+          <iframe src="${embedUrl}" allowfullscreen loading="lazy"></iframe>
+        </div>
+      ` : ''}
+      <div class="entry-card__body">
+        <div class="entry-card__location">
+          <svg viewBox="0 0 12 12" fill="none"><path d="M6 1C4.067 1 2.5 2.567 2.5 4.5 2.5 7.5 6 11 6 11s3.5-3.5 3.5-6.5C9.5 2.567 7.933 1 6 1z" stroke="currentColor" stroke-width="1"/><circle cx="6" cy="4.5" r="1" fill="currentColor"/></svg>
+          ${e.location}
+          ${e.date ? `<span class="entry-card__date">${e.date}</span>` : ''}
+        </div>
+        <h3 class="entry-card__title">${e.title}</h3>
+        ${e.desc ? `<p class="entry-card__desc">${e.desc}</p>` : ''}
+        <button class="entry-card__remove" onclick="removeEntry(${e.id})">Remove</button>
+      </div>
+    </div>
+  `}).join('');
+}
+
+// Initial render
+renderEntries();
+
+// Hide hint after 8 seconds
+setTimeout(() => {
+  document.getElementById('mapHint').classList.add('hidden');
+}, 8000);
+</script>
+
+<script src="admin.js"></script>
+</body>
+</html>

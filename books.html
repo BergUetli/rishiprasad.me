@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Books — Rishi Prasad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#050D18;--navy-light:#0A1628;--cream:#EDE4D3;--cream-dim:#9E9585;
+  --cream-muted:rgba(237,228,211,0.5);--cream-faint:rgba(237,228,211,0.06);
+  --cream-border:rgba(237,228,211,0.1);--accent:#6B9BC7;
+  --accent-dim:rgba(107,155,199,0.12);--green:#7BAE7F;--amber:#C4A24E;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--sans);background:var(--navy);color:var(--cream);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none;transition:color .2s}a:hover{color:var(--cream)}
+::selection{background:var(--accent);color:var(--navy)}
+.c{max-width:1100px;margin:0 auto;padding:0 2.5rem}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.4rem 0;transition:all .3s;background:rgba(5,13,24,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--cream-border)}
+.nav-in{max-width:1100px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--serif);font-weight:600;font-size:1.4rem;color:var(--cream);letter-spacing:.02em}
+.nav-logo:hover{color:var(--accent)}
+.nav-links{list-style:none;display:flex;gap:2.5rem}
+.nav-links a{color:var(--cream-dim);font-family:var(--mono);font-size:.75rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--cream)}
+.nav-links a.active{color:var(--cream)}
+
+/* Page header */
+.page-header{padding:10rem 0 4rem}
+.sec-l{font-family:var(--mono);font-size:.75rem;color:var(--cream-dim);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.8rem}
+.sec-t{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:600;letter-spacing:-.01em;color:var(--cream);margin-bottom:1rem;line-height:1.2}
+.page-intro{font-family:var(--serif);font-size:1.15rem;color:var(--cream-muted);max-width:600px;line-height:1.8}
+
+/* Book sections */
+.book-section{padding:3rem 0 4rem}
+.book-section+.book-section{border-top:1px solid var(--cream-border)}
+.book-cat{font-family:var(--mono);font-size:.8rem;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;margin-bottom:2rem;display:flex;align-items:center;gap:.8rem}
+.book-cat::after{content:'';flex:1;height:1px;background:var(--cream-border)}
+.book-count{font-family:var(--mono);font-size:.7rem;color:var(--cream-dim);background:var(--cream-faint);border:1px solid var(--cream-border);border-radius:3px;padding:.15rem .5rem;flex-shrink:0}
+
+/* Book grid — cover-based */
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1.8rem 1.4rem}
+
+.book-item{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.7rem;transition:transform .25s}
+.book-item:hover{transform:translateY(-4px)}
+
+/* Cover wrapper */
+.book-cover{position:relative;width:120px;height:176px;border-radius:4px;overflow:hidden;background:var(--navy-light);border:1px solid var(--cream-border);box-shadow:0 4px 20px rgba(0,0,0,.35), 0 1px 4px rgba(0,0,0,.2);flex-shrink:0;transition:box-shadow .3s}
+.book-item:hover .book-cover{box-shadow:0 8px 30px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3)}
+
+/* Actual cover image */
+.book-cover img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s}
+.book-cover img.loaded{opacity:1}
+
+/* Placeholder (visible while loading / on error) */
+.book-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:.8rem;background:linear-gradient(145deg, rgba(107,155,199,0.12) 0%, rgba(5,13,24,1) 100%);transition:opacity .4s}
+.book-placeholder.hidden{opacity:0;pointer-events:none}
+.book-placeholder__title{font-family:var(--serif);font-size:.82rem;font-weight:600;color:var(--cream);line-height:1.3;text-align:center;word-break:break-word}
+.book-placeholder__author{font-family:var(--mono);font-size:.58rem;color:var(--cream-dim);margin-top:.4rem;text-transform:uppercase;letter-spacing:.06em}
+.book-placeholder__icon{width:20px;height:20px;margin-bottom:.6rem;opacity:.25}
+
+/* Text below cover */
+.book-title{font-family:var(--serif);font-size:.92rem;font-weight:600;color:var(--cream);line-height:1.3;max-width:140px}
+.book-author{font-family:var(--sans);font-size:.75rem;color:var(--cream-dim);margin-top:.15rem}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.78rem;color:var(--cream-dim);letter-spacing:.04em;text-transform:uppercase;margin-top:3rem;transition:color .2s}
+.back-link:hover{color:var(--cream)}
+.back-arr{width:12px;height:12px;transform:rotate(180deg)}
+
+/* Footer */
+footer{padding:1.8rem 0;border-top:1px solid var(--cream-border);margin-top:4rem}
+footer .c{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+footer span{font-family:var(--mono);font-size:.72rem;color:rgba(237,228,211,.25)}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .page-header{padding:7rem 0 3rem}
+  .book-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:1.4rem 1rem}
+  .book-cover{width:100px;height:148px}
+  footer .c{flex-direction:column;text-align:center}
+}
+@media(max-width:480px){
+  .c{padding:0 1.4rem}
+  .book-grid{grid-template-columns:repeat(3,1fr);gap:1.2rem .8rem}
+  .book-cover{width:90px;height:132px}
+  .book-title{font-size:.8rem}
+  .book-author{font-size:.68rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="index.html" class="nav-logo">Rishi Prasad</a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#timeline">Timeline</a></li>
+      <li><a href="index.html#thinking">Perspective</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="books.html" class="active">Books</a></li>
+      <li><a href="travel.html">Travel</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="page-header">
+  <div class="c">
+    <p class="sec-l">Library</p>
+    <h2 class="sec-t" data-edit="books-title">Books that shaped my thinking.</h2>
+    <p class="page-intro" data-edit="books-intro">A mix of science fiction that stretched my imagination and non-fiction that sharpened my judgment. Not a comprehensive list &mdash; just the ones that stuck.</p>
+  </div>
+</section>
+
+<section class="book-section">
+  <div class="c">
+    <div class="book-cat" data-edit="fiction-label">Fiction <span class="book-count">20 books</span></div>
+    <div class="book-grid" data-list="fiction-books">
+      <div class="book-item" data-list-item data-isbn="9781451626650"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Catch-22</div><div class="book-placeholder__author">Joseph Heller</div></div><img alt="Catch-22"></div><div class="book-title">Catch-22</div><div class="book-author">Joseph Heller</div></div>
+      <div class="book-item" data-list-item data-isbn="9780451524935"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">1984</div><div class="book-placeholder__author">George Orwell</div></div><img alt="1984"></div><div class="book-title">1984</div><div class="book-author">George Orwell</div></div>
+      <div class="book-item" data-list-item data-isbn="9780553293357"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Foundation</div><div class="book-placeholder__author">Isaac Asimov</div></div><img alt="Foundation"></div><div class="book-title">Foundation</div><div class="book-author">Isaac Asimov</div></div>
+      <div class="book-item" data-list-item data-isbn="9780553294385"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">I, Robot</div><div class="book-placeholder__author">Isaac Asimov</div></div><img alt="I, Robot"></div><div class="book-title">I, Robot</div><div class="book-author">Isaac Asimov</div></div>
+      <div class="book-item" data-list-item data-isbn="9780345391803"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Hitchhiker's Guide to the Galaxy</div><div class="book-placeholder__author">Douglas Adams</div></div><img alt="The Hitchhiker's Guide to the Galaxy"></div><div class="book-title">The Hitchhiker's Guide to the Galaxy</div><div class="book-author">Douglas Adams</div></div>
+      <div class="book-item" data-list-item data-isbn="9780451526342"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Animal Farm</div><div class="book-placeholder__author">George Orwell</div></div><img alt="Animal Farm"></div><div class="book-title">Animal Farm</div><div class="book-author">George Orwell</div></div>
+      <div class="book-item" data-list-item data-isbn="9780140449068"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Around the World in 80 Days</div><div class="book-placeholder__author">Jules Verne</div></div><img alt="Around the World in 80 Days"></div><div class="book-title">Around the World in 80 Days</div><div class="book-author">Jules Verne</div></div>
+      <div class="book-item" data-list-item data-isbn="9780141439976"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Time Machine</div><div class="book-placeholder__author">H.G. Wells</div></div><img alt="The Time Machine"></div><div class="book-title">The Time Machine</div><div class="book-author">H.G. Wells</div></div>
+      <div class="book-item" data-list-item data-isbn="9781405934138"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Mythos</div><div class="book-placeholder__author">Stephen Fry</div></div><img alt="Mythos"></div><div class="book-title">Mythos</div><div class="book-author">Stephen Fry</div></div>
+      <div class="book-item" data-list-item data-isbn="9780142437223"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Divine Comedy</div><div class="book-placeholder__author">Dante Alighieri</div></div><img alt="The Divine Comedy"></div><div class="book-title">The Divine Comedy</div><div class="book-author">Dante Alighieri</div></div>
+      <div class="book-item" data-list-item data-isbn="9780743273565"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Great Gatsby</div><div class="book-placeholder__author">F. Scott Fitzgerald</div></div><img alt="The Great Gatsby"></div><div class="book-title">The Great Gatsby</div><div class="book-author">F. Scott Fitzgerald</div></div>
+      <div class="book-item" data-list-item data-isbn="9780141439525"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">King Solomon's Mines</div><div class="book-placeholder__author">H. Rider Haggard</div></div><img alt="King Solomon's Mines"></div><div class="book-title">King Solomon's Mines</div><div class="book-author">H. Rider Haggard</div></div>
+      <div class="book-item" data-list-item data-isbn="9780140437638"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">She</div><div class="book-placeholder__author">H. Rider Haggard</div></div><img alt="She"></div><div class="book-title">She</div><div class="book-author">H. Rider Haggard</div></div>
+      <div class="book-item" data-list-item data-isbn="9780441788385"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Stranger in a Strange Land</div><div class="book-placeholder__author">Robert A. Heinlein</div></div><img alt="Stranger in a Strange Land"></div><div class="book-title">Stranger in a Strange Land</div><div class="book-author">Robert A. Heinlein</div></div>
+      <div class="book-item" data-list-item data-isbn="9781524759780"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Recursion</div><div class="book-placeholder__author">Blake Crouch</div></div><img alt="Recursion"></div><div class="book-title">Recursion</div><div class="book-author">Blake Crouch</div></div>
+      <div class="book-item" data-list-item data-isbn="9780765348272"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Old Man's War</div><div class="book-placeholder__author">John Scalzi</div></div><img alt="Old Man's War"></div><div class="book-title">Old Man's War</div><div class="book-author">John Scalzi</div></div>
+      <div class="book-item" data-list-item data-isbn="9780765382030"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Three-Body Problem</div><div class="book-placeholder__author">Cixin Liu</div></div><img alt="The Three-Body Problem"></div><div class="book-title">The Three-Body Problem</div><div class="book-author">Cixin Liu</div></div>
+      <div class="book-item" data-list-item data-isbn="9780060850524"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Brave New World</div><div class="book-placeholder__author">Aldous Huxley</div></div><img alt="Brave New World"></div><div class="book-title">Brave New World</div><div class="book-author">Aldous Huxley</div></div>
+      <div class="book-item" data-list-item data-isbn="9780553283686"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Hyperion</div><div class="book-placeholder__author">Dan Simmons</div></div><img alt="Hyperion"></div><div class="book-title">Hyperion</div><div class="book-author">Dan Simmons</div></div>
+      <div class="book-item" data-list-item data-isbn="9780385333498"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Sirens of Titan</div><div class="book-placeholder__author">Kurt Vonnegut</div></div><img alt="The Sirens of Titan"></div><div class="book-title">The Sirens of Titan</div><div class="book-author">Kurt Vonnegut</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="book-section">
+  <div class="c">
+    <div class="book-cat" data-edit="nonfiction-label">Non-Fiction <span class="book-count">6 books</span></div>
+    <div class="book-grid" data-list="nonfiction-books">
+      <div class="book-item" data-list-item data-isbn="9781590302255"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Art of War</div><div class="book-placeholder__author">Sun Tzu</div></div><img alt="The Art of War"></div><div class="book-title">The Art of War</div><div class="book-author">Sun Tzu</div></div>
+      <div class="book-item" data-list-item data-isbn="9780143115267"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Nudge</div><div class="book-placeholder__author">Richard Thaler &amp; Cass Sunstein</div></div><img alt="Nudge"></div><div class="book-title">Nudge</div><div class="book-author">Richard Thaler &amp; Cass Sunstein</div></div>
+      <div class="book-item" data-list-item data-isbn="9780143110910"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Behave</div><div class="book-placeholder__author">Robert Sapolsky</div></div><img alt="Behave"></div><div class="book-title">Behave</div><div class="book-author">Robert Sapolsky</div></div>
+      <div class="book-item" data-list-item data-isbn="9781501121746"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Sprint</div><div class="book-placeholder__author">Jake Knapp</div></div><img alt="Sprint"></div><div class="book-title">Sprint</div><div class="book-author">Jake Knapp</div></div>
+      <div class="book-item" data-list-item data-isbn="9780307887894"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">The Lean Startup</div><div class="book-placeholder__author">Eric Ries</div></div><img alt="The Lean Startup"></div><div class="book-title">The Lean Startup</div><div class="book-author">Eric Ries</div></div>
+      <div class="book-item" data-list-item data-isbn="9781455502769"><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">And Yet...</div><div class="book-placeholder__author">Christopher Hitchens</div></div><img alt="And Yet..."></div><div class="book-title">And Yet...</div><div class="book-author">Christopher Hitchens</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="c">
+  <a href="index.html" class="back-link">
+    <svg class="back-arr" viewBox="0 0 14 14" fill="none"><path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back to home
+  </a>
+</div>
+
+<footer><div class="c"><span>&copy; 2026 Rishi Prasad</span><span>Zurich, Switzerland</span></div></footer>
+
+<script src="admin.js"></script>
+<script>
+// Fetch book covers from Open Library
+(function() {
+  var items = document.querySelectorAll('.book-item[data-isbn]');
+  items.forEach(function(item) {
+    var isbn = item.getAttribute('data-isbn');
+    if (!isbn) return;
+    var img = item.querySelector('.book-cover img');
+    var placeholder = item.querySelector('.book-placeholder');
+    if (!img) return;
+
+    img.onload = function() {
+      // Open Library returns a 1x1 pixel for missing covers
+      if (img.naturalWidth <= 1 && img.naturalHeight <= 1) {
+        img.style.display = 'none';
+        return;
+      }
+      img.classList.add('loaded');
+      if (placeholder) placeholder.classList.add('hidden');
+    };
+    img.onerror = function() {
+      img.style.display = 'none';
+    };
+    // Use medium size covers
+    img.src = 'https://covers.openlibrary.org/b/isbn/' + isbn + '-M.jpg';
+  });
+})();
+
+// Admin list editing
+document.addEventListener('DOMContentLoaded', function() {
+  var bookTemplate = function() {
+    return '<div class="book-item" data-list-item data-isbn=""><div class="book-cover"><div class="book-placeholder"><svg class="book-placeholder__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="book-placeholder__title">Book Title</div><div class="book-placeholder__author">Author Name</div></div><img alt="Book Title"></div><div class="book-title">Book Title</div><div class="book-author">Author Name</div></div>';
+  };
+  window._admin.enableListEditing('[data-list="fiction-books"]', '[data-list-item]', bookTemplate);
+  window._admin.enableListEditing('[data-list="nonfiction-books"]', '[data-list-item]', bookTemplate);
+});
+</script>
+</body>
+</html>
