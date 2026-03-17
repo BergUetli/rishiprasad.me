@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Travel — Rishi Prasad</title>
+<title>Travel — Rishi Prasad | World Travel Map</title>
+<meta name="description" content="Interactive world travel map by Rishi Prasad — countries visited, lived in, and worked across multiple continents. Zurich-based AI consultant and global traveler.">
+<meta name="keywords" content="Rishi Prasad travel, world travel map, countries visited, global traveler, Zurich">
+<meta name="author" content="Rishi Prasad">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://rishiprasad.me/travel.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Travel — Rishi Prasad">
+<meta property="og:description" content="Interactive world travel map — countries visited, lived in, and worked across multiple continents.">
+<meta property="og:url" content="https://rishiprasad.me/travel.html">
+<meta property="og:image" content="https://rishiprasad.me/profile-circle.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Travel — Rishi Prasad">
+<meta name="twitter:description" content="Interactive world travel map by Rishi Prasad.">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -435,6 +448,17 @@ a { color: inherit; text-decoration: none; }
   opacity: 0.6; margin-top: 0.3rem;
 }
 
+/* Hamburger Menu */
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:200}
+.hamburger span{display:block;width:24px;height:2px;background:var(--cream);border-radius:2px;transition:all .3s}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.active span:nth-child(2){opacity:0}
+.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(5,13,24,.97);z-index:150;flex-direction:column;justify-content:center;align-items:center;gap:2rem;backdrop-filter:blur(20px)}
+.mobile-overlay.active{display:flex}
+.mobile-overlay a{font-family:var(--serif);font-size:1.8rem;color:var(--cream);text-decoration:none;opacity:.7;transition:opacity .2s}
+.mobile-overlay a:hover{opacity:1;color:var(--accent)}
+
 /* ── Travel Entries ── */
 .entries-section {
   padding: 4rem 0 6rem;
@@ -550,6 +574,7 @@ a { color: inherit; text-decoration: none; }
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .nav__links { display: none; }
+  .hamburger{display:flex}
   .page-header { padding: 7rem 0 2rem; }
   .entries-grid { grid-template-columns: 1fr; }
   .map-legend { flex-direction: column; gap: 0.6rem; }
@@ -577,8 +602,19 @@ a { color: inherit; text-decoration: none; }
       <li><a href="travel.html" class="active">Travel</a></li>
       <li><a href="index.html#contact">Contact</a></li>
     </ul>
+    <button class="hamburger" aria-label="Menu" onclick="document.querySelector('.hamburger').classList.toggle('active');document.querySelector('.mobile-overlay').classList.toggle('active');document.body.style.overflow=document.querySelector('.mobile-overlay').classList.contains('active')?'hidden':''">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="mobile-overlay">
+  <a href="index.html">Home</a>
+  <a href="projects.html">Projects</a>
+  <a href="books.html">Books</a>
+  <a href="travel.html">Travel</a>
+  <a href="index.html#contact">Contact</a>
+</div>
 
 <!-- Page Header -->
 <section class="page-header">
@@ -1265,5 +1301,9 @@ setTimeout(() => {
 </script>
 
 <script src="admin.js"></script>
+
+<script>
+function closeMobileMenu(){document.querySelector('.hamburger').classList.remove('active');document.querySelector('.mobile-overlay').classList.remove('active');document.body.style.overflow=''}
+</script>
 </body>
 </html>
